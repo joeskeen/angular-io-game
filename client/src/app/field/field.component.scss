@@ -1,0 +1,5 @@
+@import "../../shared";
+
+canvas {
+  @include fullScreen();
+}

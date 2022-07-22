@@ -1,0 +1,20 @@
+@import "../../shared";
+
+:host {
+  @include fullScreen();
+
+  display: flex;
+  position: relative;
+}
+
+app-leaderboard {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: $zIndexOverlay;
+}
+
+app-field {
+  @include fullScreen();
+  z-index: $zIndexGameField;
+}
