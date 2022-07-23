@@ -1,10 +1,12 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { map, filter, throttleTime, takeWhile } from 'rxjs/operators';
+import { Command, IGameState } from '../../../../models';
 import {
   Connection,
   ConnectionService,
 } from '../connection/connection.service';
+import * as KEY_BINDINGS from '../../assets/keybindings.json';
 
 const MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND = 25;
 
@@ -14,19 +16,11 @@ const MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND = 25;
   styleUrls: ['./game.component.scss'],
 })
 export class GameComponent implements AfterViewInit {
+  private keyBindings = KEY_BINDINGS as Record<string, Command>;
   private gameActive = false;
   private connection?: Connection;
 
-  keyBindings: Record<string, Movement> = {
-    ArrowUp: 'up',
-    ArrowDown: 'down',
-    ArrowLeft: 'left',
-    ArrowRight: 'right',
-    w: 'up',
-    s: 'down',
-    a: 'left',
-    d: 'right',
-  };
+  gameState?: IGameState;
 
   constructor(private connectionService: ConnectionService) {}
 
@@ -37,20 +31,35 @@ export class GameComponent implements AfterViewInit {
 
   private async startGame() {
     this.connection = this.connectionService.getConnection();
-    await this.connection.connect();
+    await this.connection.connect('Me'); // TODO: pass in player name
     this.connection.dataStream
       ?.pipe(takeWhile(() => this.gameActive))
-      .subscribe((data) => this.updateGame(data));
+      .subscribe((data) => {
+        switch (data.event) {
+          case 'stateChanged':
+            this.updateGame(data.state!);
+            break;
+          case 'gameOver':
+            this.gameOver(data.reason!);
+            break;
+        }
+      });
     this.gameActive = true;
   }
 
-  private updateGame(data: any) {
-    console.log(data);
+  private updateGame(state: IGameState) {
+    this.gameState = state;
+  }
+
+  private gameOver(reason: string) {
+    console.log('game over!');
+    this.endGame();
   }
 
   private endGame() {
     this.gameActive = false;
     this.connection?.dispose();
+    this.gameState = undefined;
   }
 
   private initKeyBindings() {
@@ -62,13 +71,13 @@ export class GameComponent implements AfterViewInit {
         map((e) => e.key),
         // ignore unmapped keys
         filter((k) => Object.keys(this.keyBindings).includes(k)),
-        // map the key to the movement
+        // map the key to the command
         map((k) => this.keyBindings[k]),
-        // only allow 25 move commands per second
+        // only allow 25 commands per second
         throttleTime(1000 / MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND)
       )
-      .subscribe(console.log);
+      .subscribe((command) => {
+        this.connection?.sendCommand(command);
+      });
   }
 }
-
-type Movement = 'up' | 'down' | 'left' | 'right';

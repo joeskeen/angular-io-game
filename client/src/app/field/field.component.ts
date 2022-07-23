@@ -9,6 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { fromEvent } from 'rxjs';
+import { IGameState } from '../../../../models';
 
 const DEFAULT_PLAYER_COLOR = 'blue';
 const DEFAULT_PLAYER_NAME = 'You';
@@ -25,11 +26,10 @@ export class FieldComponent implements AfterViewInit, OnChanges {
   field?: ElementRef;
 
   @Input()
+  state?: IGameState;
+
+  @Input()
   playerName = DEFAULT_PLAYER_NAME;
-  @Input()
-  playerX = 0;
-  @Input()
-  playerY = 0;
   @Input()
   playerColor = DEFAULT_PLAYER_COLOR;
   @Input()

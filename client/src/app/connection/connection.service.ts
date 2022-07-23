@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { Observable, fromEvent } from 'rxjs';
-import { first, switchMap, tap } from 'rxjs/operators';
+import { Observable, fromEvent, merge } from 'rxjs';
+import { first, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Command, IGameState } from '../../../../models/index';
 
 @Injectable({
   providedIn: 'root',
@@ -16,11 +17,11 @@ export class ConnectionService {
 
 export class Connection {
   private socket?: Socket<any, any>;
-  private _dataStream?: Observable<any>;
+  private _dataStream?: Observable<IMessage>;
 
   constructor() {}
 
-  async connect() {
+  async connect(name: string) {
     const socketProtocol = window.location.protocol.includes('https')
       ? 'wss'
       : 'ws';
@@ -28,37 +29,54 @@ export class Connection {
       reconnection: false,
     });
 
-    await new Promise<void>((resolve) => {
-      socket.on('connect', () => {
-        console.log(`connected to web socket: ${socket.id}`);
-        resolve();
-      });
-    });
+    const stateChange$ = fromEvent(socket, 'stateChanged').pipe(
+      map(
+        (state: IGameState) =>
+          ({
+            event: 'stateChanged',
+            state,
+          } as IMessage)
+      )
+    );
+
+    const gameOver$ = fromEvent(socket, 'gameOver').pipe(
+      map(
+        (reason: string) =>
+          ({
+            event: 'gameOver',
+            reason,
+          } as IMessage)
+      )
+    );
+
+    const disconnect$ = fromEvent(socket, 'disconnect').pipe(
+      tap(() => {
+        console.log('socket disconnected');
+        this.dispose();
+      })
+    );
 
     this._dataStream = fromEvent(socket, 'connect').pipe(
       first(),
-      tap(() => console.info(`connected to web socket`)),
-      switchMap(() => fromEvent(socket, 'update'))
+      tap(() => socket.emit('name', name)),
+      tap(() => console.log(`connected on socket ${socket.id} as ${name}`)),
+      switchMap(() => merge(stateChange$, gameOver$)),
+      takeUntil(disconnect$)
     );
-
-    fromEvent(socket, 'disconnect').subscribe(() => {
-      console.log('socket disconnected');
-      this.dispose();
-    });
 
     this.socket = socket;
   }
 
-  get dataStream(): Observable<any> | undefined {
+  get dataStream(): Observable<IMessage> | undefined {
     return this._dataStream;
   }
 
-  sendData(data: any) {
+  sendCommand(command: Command) {
     if (!this.socket) {
       throw new Error('Failed to send data: no connected socket');
     }
 
-    this.socket.emit('data', JSON.stringify(data));
+    this.socket.emit('command', command);
   }
 
   dispose() {
@@ -66,4 +84,10 @@ export class Connection {
     this.socket = undefined;
     this._dataStream = undefined;
   }
+}
+
+interface IMessage {
+  event: 'stateChanged' | 'gameOver';
+  state?: IGameState;
+  reason?: string;
 }

@@ -2,6 +2,7 @@ import * as express from 'express';
 import { Server as SocketIoServer } from 'socket.io';
 import { join } from 'path';
 import { Game } from './game';
+import { Command } from '../../models';
 
 const app = express();
 const clientDist = join(__dirname, '../../client/dist/ngx-io-js-client');
@@ -18,10 +19,10 @@ const game = new Game();
 
 const io = new SocketIoServer(server);
 io.on('connection', async (socket) => {
-  console.log(`player connected: ${socket.id}`);
   const name = await new Promise<string>((resolve) => {
     socket.once('name', (name: string) => resolve(name));
   });
+  console.log(`player connected: ${name} (${socket.id})`);
   game.join(
     socket.id,
     name,
@@ -29,5 +30,7 @@ io.on('connection', async (socket) => {
     (reason) => socket.emit('gameOver', reason)
   );
   socket.conn.on('close', () => game.drop(socket.id));
-  socket.on('command', (data) => game.onPlayerCommand(socket.id, data.command));
+  socket.on('command', (command: Command) =>
+    game.onPlayerCommand(socket.id, command)
+  );
 });

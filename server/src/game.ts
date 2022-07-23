@@ -4,6 +4,8 @@ import { gameLogic, getInitialState } from './logic';
 export type UpdateCallback = (gameState: IGameState) => void;
 export type GameOverCallback = (reason: string) => void;
 
+const UPDATES_PER_SECOND = 10;
+
 export class Game {
   private gameState: IGameState;
   private callbacks: Record<
@@ -14,9 +16,13 @@ export class Game {
   private timer: NodeJS.Timer;
 
   start() {
+    console.log(`starting game (${UPDATES_PER_SECOND} updates per second)`);
     this.callbacks = {};
     this.gameState = getInitialState();
-    this.timer = setInterval(() => this.updateGameState(), 1000 / 60);
+    this.timer = setInterval(
+      () => this.updateGameState(),
+      1000 / UPDATES_PER_SECOND
+    );
   }
 
   join(
@@ -51,6 +57,7 @@ export class Game {
     this.gameState.players = this.gameState.players.filter((p) => p.id !== id);
 
     if (!this.gameState.players.length) {
+      console.log('stopping game (no players)');
       clearTimeout(this.timer);
       this.timer = null;
     }
@@ -67,6 +74,7 @@ export class Game {
       return;
     }
     this.gameState = newState;
+    this.playerCommands = {};
     Object.values(this.callbacks).forEach((cb) => cb.update(newState));
     // TODO: get game over callbacks working
   }
