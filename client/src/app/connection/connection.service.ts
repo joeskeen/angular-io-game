@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { Observable, fromEvent, merge } from 'rxjs';
+import { Observable, fromEvent, merge, firstValueFrom } from 'rxjs';
 import { first, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { Command, IGameState } from '../../../../models/index';
+import { Command, IGameState } from '../../../../src/models';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,7 @@ export class Connection {
 
   constructor() {}
 
-  async connect(name: string) {
+  async connect(name: string): Promise<string> {
     const socketProtocol = window.location.protocol.includes('https')
       ? 'wss'
       : 'ws';
@@ -36,7 +36,8 @@ export class Connection {
             event: 'stateChanged',
             state,
           } as IMessage)
-      )
+      ),
+      tap((s) => console.debug({ stateChanged: s }))
     );
 
     const gameOver$ = fromEvent(socket, 'gameOver').pipe(
@@ -46,7 +47,8 @@ export class Connection {
             event: 'gameOver',
             reason,
           } as IMessage)
-      )
+      ),
+      tap((s) => console.debug({ gameOver: s }))
     );
 
     const disconnect$ = fromEvent(socket, 'disconnect').pipe(
@@ -56,15 +58,24 @@ export class Connection {
       })
     );
 
-    this._dataStream = fromEvent(socket, 'connect').pipe(
+    const connectionStream = fromEvent(socket, 'connect').pipe(
       first(),
       tap(() => socket.emit('name', name)),
-      tap(() => console.log(`connected on socket ${socket.id} as ${name}`)),
+      tap(() => console.log(`connected on socket ${socket.id} as ${name}`))
+    );
+
+    this._dataStream = connectionStream.pipe(
       switchMap(() => merge(stateChange$, gameOver$)),
       takeUntil(disconnect$)
     );
 
     this.socket = socket;
+
+    while (!socket.id) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+
+    return socket.id;
   }
 
   get dataStream(): Observable<IMessage> | undefined {
@@ -72,6 +83,7 @@ export class Connection {
   }
 
   sendCommand(command: Command) {
+    console.debug(`sending command: ${command}`);
     if (!this.socket) {
       throw new Error('Failed to send data: no connected socket');
     }

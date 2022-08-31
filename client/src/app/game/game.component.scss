@@ -1,4 +1,4 @@
-@import "../../shared";
+@import '../../shared';
 
 :host {
   @include fullScreen();
@@ -17,4 +17,10 @@ app-leaderboard {
 app-field {
   @include fullScreen();
   z-index: $zIndexGameField;
+}
+
+app-player {
+  position: absolute;
+  top: 100px;
+  left: 20px;
 }

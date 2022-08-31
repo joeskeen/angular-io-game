@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+input,
+label,
+button {
+  margin: 3px 0;
+}
+
+button {
+  padding: 5px 10px;
+}

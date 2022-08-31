@@ -1,3 +1,10 @@
 <div class="leaderboard">
-  <span>leaderboard works!</span>
+  <ng-container *ngIf="state">
+    <div
+      *ngFor="let playa of state.players"
+      [class.player]="player?.id === playa.id"
+    >
+      {{ playa.name }}: {{ playa.score }}
+    </div>
+  </ng-container>
 </div>

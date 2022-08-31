@@ -1,14 +1,16 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { map, filter, throttleTime, takeWhile } from 'rxjs/operators';
-import { Command, IGameState } from '../../../../models';
 import {
   Connection,
   ConnectionService,
 } from '../connection/connection.service';
 import * as KEY_BINDINGS from '../../assets/keybindings.json';
+import { StateService } from '../state/state.service';
+import { Router } from '@angular/router';
+import { Command, IGameState, IPlayer } from '../../../../src/models';
 
-const MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND = 25;
+const MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND = 15;
 
 @Component({
   selector: 'app-game',
@@ -20,9 +22,17 @@ export class GameComponent implements AfterViewInit {
   private gameActive = false;
   private connection?: Connection;
 
+  @Input()
   gameState?: IGameState;
 
-  constructor(private connectionService: ConnectionService) {}
+  player?: IPlayer;
+  playerId?: string;
+
+  constructor(
+    private connectionService: ConnectionService,
+    private stateService: StateService,
+    private router: Router
+  ) {}
 
   ngAfterViewInit(): void {
     this.initKeyBindings();
@@ -30,8 +40,14 @@ export class GameComponent implements AfterViewInit {
   }
 
   private async startGame() {
+    const playerName = this.stateService.playerName;
+    if (!playerName) {
+      this.router.navigate(['/']);
+      return;
+    }
+
     this.connection = this.connectionService.getConnection();
-    await this.connection.connect('Me'); // TODO: pass in player name
+    const connectionPromise = this.connection.connect(playerName);
     this.connection.dataStream
       ?.pipe(takeWhile(() => this.gameActive))
       .subscribe((data) => {
@@ -44,22 +60,29 @@ export class GameComponent implements AfterViewInit {
             break;
         }
       });
+    const id = await connectionPromise;
+    this.playerId = id;
     this.gameActive = true;
   }
 
   private updateGame(state: IGameState) {
     this.gameState = state;
+    this.player = this.gameState.players.find((p) => p.id === this.playerId);
   }
 
   private gameOver(reason: string) {
     console.log('game over!');
     this.endGame();
+    alert(`Game Over: ${reason}`);
+    this.router.navigate(['/']);
   }
 
   private endGame() {
     this.gameActive = false;
     this.connection?.dispose();
     this.gameState = undefined;
+    this.playerId = undefined;
+    this.player = undefined;
   }
 
   private initKeyBindings() {

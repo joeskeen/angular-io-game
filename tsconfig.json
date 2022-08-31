@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2017",
+    "outDir": "dist",
+    "inlineSourceMap": true,
+    "sourceRoot": "src"
+  },
+  "files": ["src/index.ts"],
+  "exclude": ["node_modules"]
+}

@@ -2,10 +2,12 @@ import * as express from 'express';
 import { Server as SocketIoServer } from 'socket.io';
 import { join } from 'path';
 import { Game } from './game';
-import { Command } from '../../models';
+import { Command } from './models';
+
+console.info(`starting app...`);
 
 const app = express();
-const clientDist = join(__dirname, '../../client/dist/ngx-io-js-client');
+const clientDist = join(__dirname, 'client');
 app.use(express.static(clientDist));
 app.get('*', (_, res) => {
   res.sendFile(`${clientDist}/index.html`);
@@ -33,4 +35,6 @@ io.on('connection', async (socket) => {
   socket.on('command', (command: Command) =>
     game.onPlayerCommand(socket.id, command)
   );
+  // initial push of state
+  socket.emit('stateChanged', game.gameState);
 });

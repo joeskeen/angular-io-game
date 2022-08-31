@@ -1,0 +1,12 @@
+:host {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+app-new-game-dialog {
+  border: solid black 1px;
+  padding: 10px;
+}

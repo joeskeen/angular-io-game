@@ -5,6 +5,7 @@ export interface IGameState {
     width: number;
     height: number;
   };
+  eliminatedPlayers: Record<string, string>;
 }
 
 export interface IPlayer {
@@ -18,6 +19,7 @@ export interface IPlayer {
 export interface ICoin {
   x: number;
   y: number;
+  isDeadly?: boolean;
 }
 
 export type Command = 'left' | 'right' | 'up' | 'down';

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IGameState } from '../../../../models';
+import { IGameState, IPlayer } from '../../../../src/models';
 
 @Component({
   selector: 'app-leaderboard',
@@ -9,6 +9,9 @@ import { IGameState } from '../../../../models';
 export class LeaderboardComponent implements OnInit {
   @Input()
   state?: IGameState;
+
+  @Input()
+  player?: IPlayer;
 
   constructor() {}
 

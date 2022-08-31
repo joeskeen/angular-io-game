@@ -7,6 +7,8 @@ import { GameComponent } from './game/game.component';
 import { MenuComponent } from './menu/menu.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { FieldComponent } from './field/field.component';
+import { NewGameDialogComponent } from './new-game-dialog/new-game-dialog.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -14,13 +16,11 @@ import { FieldComponent } from './field/field.component';
     GameComponent,
     MenuComponent,
     LeaderboardComponent,
-    FieldComponent
+    FieldComponent,
+    NewGameDialogComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule
-  ],
+  imports: [BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
