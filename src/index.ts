@@ -7,6 +7,7 @@ import { Command } from './models';
 console.info(`starting app...`);
 
 const app = express();
+
 const clientDist = join(__dirname, 'client');
 app.use(express.static(clientDist));
 app.get('*', (_, res) => {

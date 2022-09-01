@@ -4,11 +4,14 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc ; cd src/client ; npm run build",
+    "build": "tsc",
+    "postbuild": "cd src/client ; npm run build",
     "watch": "tsc -w --preserveWatchOutput",
     "local": "nodemon",
     "prestart": "npm run build",
     "start": "concurrently -n tsc,node,ng 'npm:watch' 'npm:local' 'cd src/client ; npm run watch'",
+    "prestart:internet": "npm run build",
+    "start:internet": "concurrently -n start,ngrok 'npm:start' 'ngrok http 3000'",
     "postinstall": "cd src/client ; npm install ; cd .. ; vercel"
   },
   "author": "",
@@ -21,9 +24,9 @@
     "@types/express": "^4.17.13",
     "@types/node": "^18.0.6",
     "concurrently": "^7.3.0",
+    "ngrok": "^4.3.3",
     "nodemon": "^2.0.19",
     "ts-node": "^10.9.1",
-    "typescript": "^4.7.4",
-    "vercel": "^28.2.0"
+    "typescript": "^4.7.4"
   }
 }
