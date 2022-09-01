@@ -23,3 +23,4 @@ export interface ICoin {
 }
 
 export type Command = 'left' | 'right' | 'up' | 'down';
+export type Commands = Record<string, Command>;

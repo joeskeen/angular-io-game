@@ -8,7 +8,8 @@ import {
 import * as KEY_BINDINGS from '../../assets/keybindings.json';
 import { StateService } from '../state/state.service';
 import { Router } from '@angular/router';
-import { Command, IGameState, IPlayer } from '../../../../src/models';
+import { Command, IGameState, IPlayer } from '../../../../models';
+import { ReloadService } from '../reload.service';
 
 const MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND = 15;
 
@@ -31,7 +32,8 @@ export class GameComponent implements AfterViewInit {
   constructor(
     private connectionService: ConnectionService,
     private stateService: StateService,
-    private router: Router
+    private router: Router,
+    private reloadService: ReloadService
   ) {}
 
   ngAfterViewInit(): void {
@@ -63,6 +65,15 @@ export class GameComponent implements AfterViewInit {
     const id = await connectionPromise;
     this.playerId = id;
     this.gameActive = true;
+
+    setTimeout(() => {
+      if (!this.gameState) {
+        // There's a bug where the socket somehow doesn't connect properly.
+        // a refresh can sometimes fix it. It's a race condition I haven't
+        // gotten a chance to fix yet.
+        this.reloadService.reloadPage();
+      }
+    }, 500);
   }
 
   private updateGame(state: IGameState) {

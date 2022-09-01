@@ -1,35 +1,6 @@
-import { Command, IGameState, IPlayer } from './models';
-
-export type Commands = Record<string, Command>;
+import { Commands, IGameState, IPlayer } from './models';
 
 const coinCount = 100;
-
-export function getUnoccupiedLocation(state: IGameState): {
-  x: number;
-  y: number;
-} {
-  let location = null;
-  while (!location) {
-    const x = Math.floor(Math.random() * state.fieldSize.width);
-    const y = Math.floor(Math.random() * state.fieldSize.height);
-    if (state.players.find((p) => p.x === x && p.y === y)) {
-      continue;
-    }
-    if (state.coins.find((c) => c.x === x && c.y === y)) {
-      continue;
-    }
-    location = { x, y };
-  }
-  return location;
-}
-
-export function gameLogic(state: IGameState, commands: Commands): IGameState {
-  evaluateCommands(state, commands);
-  resolveCoinCollisions(state);
-  resolvePlayerCollisions(state);
-  addMoreCoins(state);
-  return state;
-}
 
 export function getInitialState(): IGameState {
   return {
@@ -41,6 +12,14 @@ export function getInitialState(): IGameState {
     },
     eliminatedPlayers: {},
   };
+}
+
+export function gameLogic(state: IGameState, commands: Commands): IGameState {
+  evaluateCommands(state, commands);
+  resolveCoinCollisions(state);
+  resolvePlayerCollisions(state);
+  addMoreCoins(state);
+  return state;
 }
 
 function evaluateCommands(state: IGameState, commands: Commands) {
@@ -121,4 +100,23 @@ function addMoreCoins(state: IGameState) {
     const isDeadly = Math.floor(Math.random() * 2) === 1;
     state.coins.push({ ...location, isDeadly });
   }
+}
+
+export function getUnoccupiedLocation(state: IGameState): {
+  x: number;
+  y: number;
+} {
+  let location = null;
+  while (!location) {
+    const x = Math.floor(Math.random() * state.fieldSize.width);
+    const y = Math.floor(Math.random() * state.fieldSize.height);
+    if (state.players.find((p) => p.x === x && p.y === y)) {
+      continue;
+    }
+    if (state.coins.find((c) => c.x === x && c.y === y)) {
+      continue;
+    }
+    location = { x, y };
+  }
+  return location;
 }

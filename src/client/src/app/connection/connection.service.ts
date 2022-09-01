@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { Observable, fromEvent, merge, firstValueFrom } from 'rxjs';
+import { Observable, fromEvent, merge } from 'rxjs';
 import { first, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { Command, IGameState } from '../../../../src/models';
+import { Command, IGameState } from '../../../../models';
 
 @Injectable({
   providedIn: 'root',

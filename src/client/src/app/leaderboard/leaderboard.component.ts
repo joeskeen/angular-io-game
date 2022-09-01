@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IGameState, IPlayer } from '../../../../src/models';
+import { IGameState, IPlayer } from '../../../../models';
 
 @Component({
   selector: 'app-leaderboard',

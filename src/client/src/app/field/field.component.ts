@@ -8,7 +8,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { IPlayer, IGameState } from '../../../../src/models';
+import { IPlayer, IGameState } from '../../../../models';
 
 const DEFAULT_COIN_COLOR = 'yellow';
 const DEFAULT_OTHER_PLAYER_COLOR = 'red';

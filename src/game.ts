@@ -1,5 +1,5 @@
 import { gameLogic, getInitialState, getUnoccupiedLocation } from './logic';
-import { Command, IGameState } from './models';
+import { Command, Commands, IGameState } from './models';
 
 export type UpdateCallback = (gameState: IGameState) => void;
 export type GameOverCallback = (reason: string) => void;
@@ -15,7 +15,7 @@ export class Game {
     string,
     { update: UpdateCallback; gameOver: GameOverCallback }
   > = {};
-  private playerCommands: Record<string, Command> = {};
+  private playerCommands: Commands = {};
   private timer?: NodeJS.Timer;
 
   start() {

@@ -5,10 +5,11 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
+    "watch": "tsc -w --preserveWatchOutput",
     "local": "nodemon",
     "prestart": "npm run build",
-    "start": "concurrently -n tsc,node,ng 'npm:watch' 'npm:local' 'cd client ; npm run watch'"
+    "start": "concurrently -n tsc,node,ng 'npm:watch' 'npm:local' 'cd src/client ; npm run watch'",
+    "postinstall": "cd src/client ; npm install"
   },
   "author": "",
   "license": "ISC",
