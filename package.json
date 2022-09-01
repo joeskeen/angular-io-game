@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc ; cd src/client ; npm run build",
     "watch": "tsc -w --preserveWatchOutput",
     "local": "nodemon",
     "prestart": "npm run build",
