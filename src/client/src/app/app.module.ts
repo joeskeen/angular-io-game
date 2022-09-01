@@ -9,6 +9,7 @@ import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { FieldComponent } from './field/field.component';
 import { NewGameDialogComponent } from './new-game-dialog/new-game-dialog.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SortPipe } from './leaderboard/sort.pipe';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     LeaderboardComponent,
     FieldComponent,
     NewGameDialogComponent,
+    SortPipe,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule],
   providers: [],
