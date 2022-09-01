@@ -9,7 +9,7 @@
     "local": "nodemon",
     "prestart": "npm run build",
     "start": "concurrently -n tsc,node,ng 'npm:watch' 'npm:local' 'cd src/client ; npm run watch'",
-    "postinstall": "cd src/client ; npm install"
+    "postinstall": "cd src/client ; npm install ; cd .. ; vercel"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +23,7 @@
     "concurrently": "^7.3.0",
     "nodemon": "^2.0.19",
     "ts-node": "^10.9.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "vercel": "^28.2.0"
   }
 }
