@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
+    "init": "ngrok authtoken",
     "build": "tsc",
     "postbuild": "cd src/client ; npm run build",
     "watch": "tsc -w --preserveWatchOutput",

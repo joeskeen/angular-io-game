@@ -55,3 +55,49 @@ your IO app is to look at the following files:
   over, navigation, etc.
 - `src/client/src/app/field/field.component.ts`: the component for
   rendering the game state.
+- `src/client/src/assets/keybindings.json`: a key-value mapping where the key is
+  the key to receive input from (full list is at
+  <https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values>),'
+  value is the command name to execute (see the `Command` type in `src/models.ts`).
+  Only single key bindings are supported.
+
+## Sharing your app
+
+To let others play your app:
+
+- Sign up for a free account on NGROK (<https://dashboard.ngrok.com/signup>) - you
+  can link with GitHub if you don't want to create another special account for it
+- Go to <https://dashboard.ngrok.com/get-started/your-authtoken> and copy your
+  authtoken.
+- Make sure `npm start` is running
+- In a separate terminal window/tab, run `npx ngrok accesstoken {your pasted access token}`
+- Then run `npx ngrok http 3000`. This will give you public internet URLs you can
+  share with others to play the game. Something like this:
+
+  ```
+  ngrok by @inconshreveable                                                 (Ctrl+C to quit)
+
+  Session Status                online
+  Account                       Joe Skeen (Plan: Free)
+  Version                       2.3.40
+  Region                        United States (us)
+  Web Interface                 http://127.0.0.1:4040
+  Forwarding                    http://8b75-69-55-98-34.ngrok.io -> http://localhost:3000
+  Forwarding                    https://8b75-69-55-98-34.ngrok.io -> http://localhost:3000
+
+  Connections                   ttl     opn     rt1     rt5     p50     p90
+                                0       0       0.00    0.00    0.00    0.00
+  ```
+
+- Remember, the game is running on your computer, so you need to keep `npm start`
+  running for the app to remain active.
+
+## Submitting your ng-conf 2022 hackathon project
+
+If you would like to be eligible for winning the grand prize for the ng-conf 2022 hackathon:
+
+- Check in and push your code to a public GitHub repository.
+- Keep your app running until the end of the judging.
+- Submit your repo URL and public app URL here: <https://forms.gle/qNms32fdgkyMht2L6>
+
+Hope you had fun, and Good luck!
