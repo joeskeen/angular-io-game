@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import { fromEvent } from 'rxjs';
-import { map, filter, throttleTime, takeWhile } from 'rxjs/operators';
+import { map, filter, throttleTime, takeWhile, tap } from 'rxjs/operators';
 import {
   Connection,
   ConnectionService,
@@ -18,10 +18,12 @@ const MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND = 15;
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
-export class GameComponent implements AfterViewInit {
+export class GameComponent implements AfterViewInit, OnDestroy {
   private keyBindings = KEY_BINDINGS as Record<string, Command>;
   private gameActive = false;
   private connection?: Connection;
+  private lastKey: string | undefined;
+  private interval: any;
 
   @Input()
   gameState?: IGameState;
@@ -39,6 +41,11 @@ export class GameComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.initKeyBindings();
     this.startGame();
+    this.intervalMovement();
+  }
+
+  ngOnDestroy(): void {
+    this.clearInterval();
   }
 
   private async startGame() {
@@ -94,6 +101,7 @@ export class GameComponent implements AfterViewInit {
     this.gameState = undefined;
     this.playerId = undefined;
     this.player = undefined;
+    this.clearInterval();
   }
 
   private initKeyBindings() {
@@ -103,6 +111,14 @@ export class GameComponent implements AfterViewInit {
         filter(() => this.gameActive),
         // Get the key from the event
         map((e) => e.key),
+        // Stop if certain key is entered and listen to next movement
+        tap((key) => {
+          const stopCharacters = [' '];
+          if (stopCharacters.includes(key)) {
+            this.clearInterval();
+            this.intervalMovement();
+          }
+        }),
         // ignore unmapped keys
         filter((k) => Object.keys(this.keyBindings).includes(k)),
         // map the key to the command
@@ -110,8 +126,23 @@ export class GameComponent implements AfterViewInit {
         // only allow 25 commands per second
         throttleTime(1000 / MAX_ALLOWABLE_MOVE_COMMANDS_PER_SECOND)
       )
-      .subscribe((command) => {
+      .subscribe((command: string) => {
+        this.lastKey = command;
         this.connection?.sendCommand(command);
       });
+  }
+
+  private clearInterval() {
+    this.lastKey = undefined;
+    clearInterval(this.interval);
+  }
+
+  private intervalMovement() {
+    // keep moving like Snake
+    this.interval = setInterval(() => {
+      if (this.lastKey) {
+        this.connection?.sendCommand(this.lastKey);
+      }
+    }, 100);
   }
 }

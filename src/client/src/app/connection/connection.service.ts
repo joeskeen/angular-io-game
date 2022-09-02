@@ -82,7 +82,7 @@ export class Connection {
     return this._dataStream;
   }
 
-  sendCommand(command: Command) {
+  sendCommand(command: string) {
     console.debug(`sending command: ${command}`);
     if (!this.socket) {
       throw new Error('Failed to send data: no connected socket');
